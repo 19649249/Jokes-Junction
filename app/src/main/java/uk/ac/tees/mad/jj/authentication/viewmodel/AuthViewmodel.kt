@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.auth.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 import uk.ac.tees.mad.jj.authentication.model.UserInfo
 import uk.ac.tees.mad.jj.authentication.response.AuthState
 import javax.inject.Inject
+import kotlin.math.log
 
 
 @HiltViewModel
@@ -25,6 +27,9 @@ class AuthViewmodel @Inject constructor(
 
     private var _isLoggedIn = MutableStateFlow<Boolean>(false)
     val isLoggedIn = _isLoggedIn.asStateFlow()
+
+    private var _currentUser = MutableStateFlow<UserInfo?>(null)
+    val currentUser = _currentUser.asStateFlow()
 
     init {
         checkIfLoggedIn()
@@ -101,4 +106,37 @@ class AuthViewmodel @Inject constructor(
     fun updateAuthState(){
         _authState.value = AuthState.Idle
     }
+
+    fun fetchCurrentUser(){
+        val currUser = auth.currentUser
+        _authState.value = AuthState.Loading
+        if (currUser!=null){
+            val userId = currUser.uid
+
+            firestore.collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener {user->
+                    if (user.exists()){
+                        val userInfo = UserInfo(
+                            user.getString("name") ?: "",
+                            user.getString("username") ?: "",
+                            user.getString("email") ?: "",
+                            user.getString("profilePicture") ?: ""
+                        )
+
+                        _currentUser.value = userInfo
+                        _authState.value = AuthState.Success
+                    }else{
+                        _authState.value = AuthState.Failure("The User is not found!")
+                    }
+                }
+                .addOnFailureListener {
+                    logOut()
+                    _authState.value = AuthState.Failure(it.message.toString())
+                    Log.i("The User:" , it.message.toString())
+                }
+        }
+    }
+
 }

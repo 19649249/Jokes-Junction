@@ -44,5 +44,17 @@ fun HomeScreen(
                 fontFamily = poppinsFam
             )
         }
+
+        Button(onClick ={
+            authViewmodel.fetchCurrentUser()
+            navController.navigate("profile_screen")
+        }
+        ){
+            Text(
+                text = "Profile",
+                fontSize = 18.sp,
+                fontFamily = poppinsFam
+            )
+        }
     }
 }
