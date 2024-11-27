@@ -23,6 +23,22 @@ class AuthViewmodel @Inject constructor(
     private var _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState = _authState.asStateFlow()
 
+    private var _isLoggedIn = MutableStateFlow<Boolean>(false)
+    val isLoggedIn = _isLoggedIn.asStateFlow()
+
+    init {
+        checkIfLoggedIn()
+    }
+
+    private fun checkIfLoggedIn(){
+        val currUser = auth.currentUser
+        if (currUser!=null){
+            _isLoggedIn.value = true
+        }else{
+            _isLoggedIn.value = false
+        }
+    }
+
     fun LoginUser(email: String, password: String){
         viewModelScope.launch {
             _authState.value = AuthState.Loading

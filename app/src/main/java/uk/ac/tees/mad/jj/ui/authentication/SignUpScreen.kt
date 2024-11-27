@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
@@ -47,15 +48,19 @@ import uk.ac.tees.mad.jj.ui.theme.poppinsFam
 
 
 @Composable
-fun LogInScreen(
+fun SignUpScreen(
     authViewmodel: AuthViewmodel,
     navController: NavHostController
 ){
     val context = LocalContext.current
 
+    var name by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
     var passwordVisi by remember { mutableStateOf(false) }
+
     val authState by authViewmodel.authState.collectAsState()
 
     when(authState){
@@ -67,7 +72,7 @@ fun LogInScreen(
             }
         }
         is AuthState.Failure->{
-            Toast.makeText(context, (authState as AuthState.Failure).message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, (authState as AuthState.Failure).message.toString(), Toast.LENGTH_LONG).show()
             email = ""
             password = ""
             authViewmodel.updateAuthState()
@@ -90,7 +95,7 @@ fun LogInScreen(
 
         Column(
             modifier = Modifier
-                .fillMaxHeight(0.25f)
+                .fillMaxHeight(0.2f)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -102,36 +107,101 @@ fun LogInScreen(
                 color = Color.White
             )
         }
-
         Column(
             modifier = Modifier
-                .fillMaxHeight(0.75f)
                 .fillMaxWidth()
+                .fillMaxHeight(0.8f)
                 .background(
                     color = Color.White,
                     shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp)
                 )
                 .align(Alignment.BottomCenter),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ){
             Spacer(modifier = Modifier.weight(0.4f))
 
             Text(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                text = "Log In",
+                text = "Create a new account!",
                 fontSize = 25.sp,
                 fontFamily = authFam,
+                modifier = Modifier
+                    .fillMaxWidth(),
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )
+
             Spacer(modifier = Modifier.weight(0.1f))
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth(0.85f),
+                text = "Name",
+                fontSize = 15.sp,
+                fontFamily = poppinsFam
+            )
+            OutlinedTextField(
+                value = name,
+                onValueChange = {
+                    name = it
+                },
+                modifier = Modifier
+                    .fillMaxWidth(0.9f),
+                shape = RoundedCornerShape(15.dp),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Person,
+                        contentDescription = "Name"
+                    )
+                },
+                placeholder = {
+                    Text(
+                        text = "Enter fullname",
+                        fontSize = 15.sp,
+                        fontFamily = poppinsFam
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.weight(0.1f))
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth(0.85f),
+                text = "Username",
+                fontSize = 15.sp,
+                fontFamily = poppinsFam
+            )
+            OutlinedTextField(
+                value = username,
+                onValueChange = {
+                    username = it
+                },
+                modifier = Modifier
+                    .fillMaxWidth(0.9f),
+                shape = RoundedCornerShape(15.dp),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Person,
+                        contentDescription = "Username"
+                    )
+                },
+                placeholder = {
+                    Text(
+                        text = "Enter username",
+                        fontSize = 15.sp,
+                        fontFamily = poppinsFam
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.weight(0.1f))
+
             Text(
                 modifier = Modifier
                     .fillMaxWidth(0.85f),
                 text = "Email",
-                fontSize = 18.sp,
+                fontSize = 15.sp,
                 fontFamily = poppinsFam
             )
             OutlinedTextField(
@@ -150,7 +220,7 @@ fun LogInScreen(
                 },
                 placeholder = {
                     Text(
-                        text ="Enter your email",
+                        text = "Enter email",
                         fontSize = 15.sp,
                         fontFamily = poppinsFam
                     )
@@ -158,11 +228,12 @@ fun LogInScreen(
             )
 
             Spacer(modifier = Modifier.weight(0.1f))
+
             Text(
                 modifier = Modifier
                     .fillMaxWidth(0.85f),
                 text = "Password",
-                fontSize = 18.sp,
+                fontSize = 15.sp,
                 fontFamily = poppinsFam
             )
             OutlinedTextField(
@@ -212,12 +283,20 @@ fun LogInScreen(
                     .fillMaxWidth(0.88f),
                 onClick = {
                     if (
+                        name.isNotEmpty() &&
+                        username.isNotEmpty() &&
                         email.isNotEmpty() &&
                         password.isNotEmpty()
                     ){
-                        authViewmodel.LoginUser(email, password)
+                        authViewmodel.RegisterUser(name, username, email, password)
+                        navController.navigate("home_graph"){
+                            popUpTo(navController.graph.startDestinationId){
+                                inclusive=true
+                            }
+                        }
+
                     }else{
-                        Toast.makeText(context, "Email and Username must not be empty", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "No field should be left empty", Toast.LENGTH_LONG).show()
                     }
                 },
                 shape = RoundedCornerShape(15.dp),
@@ -228,7 +307,7 @@ fun LogInScreen(
                 border = BorderStroke(1.dp, Color.Black)
             ) {
                 Text(
-                    text = "Login",
+                    text = "Register",
                     fontSize = 15.sp,
                     fontFamily = poppinsFam,
                 )
@@ -246,11 +325,11 @@ fun LogInScreen(
                 ),
                 border = BorderStroke(1.dp, Color.Black),
                 onClick = {
-                    navController.navigate("signup_screen")
+                    navController.navigate("login_screen")
                 }
             ) {
                 Text(
-                    text = "New to Joke Junction?",
+                    text = "Already registered to Joke Junction?",
                     fontSize = 15.sp,
                     fontFamily = poppinsFam
                 )
@@ -258,6 +337,5 @@ fun LogInScreen(
 
             Spacer(modifier = Modifier.weight(0.5f))
         }
-
     }
 }
