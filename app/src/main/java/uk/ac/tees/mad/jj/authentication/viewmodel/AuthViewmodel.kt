@@ -22,13 +22,13 @@ class AuthViewmodel @Inject constructor(
     private val firestore: FirebaseFirestore
 ):ViewModel() {
 
-    private var _authState = MutableStateFlow<AuthState>(AuthState.Idle)
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState = _authState.asStateFlow()
 
-    private var _isLoggedIn = MutableStateFlow<Boolean>(false)
+    private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn = _isLoggedIn.asStateFlow()
 
-    private var _currentUser = MutableStateFlow<UserInfo?>(null)
+    private val _currentUser = MutableStateFlow<UserInfo?>(null)
     val currentUser = _currentUser.asStateFlow()
 
     init {
@@ -37,11 +37,7 @@ class AuthViewmodel @Inject constructor(
 
     private fun checkIfLoggedIn(){
         val currUser = auth.currentUser
-        if (currUser!=null){
-            _isLoggedIn.value = true
-        }else{
-            _isLoggedIn.value = false
-        }
+        _isLoggedIn.value = currUser!=null
     }
 
     fun LoginUser(email: String, password: String){
