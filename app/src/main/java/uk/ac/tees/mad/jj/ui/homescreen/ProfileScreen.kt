@@ -83,7 +83,7 @@ fun ProfileScreen(
             ),
             border = BorderStroke(1.dp, Color.Black),
             onClick = {
-
+                navController.navigate("edit_profile_screen")
             }
         ) {
             Text(
@@ -102,6 +102,12 @@ fun ProfileScreen(
             fontWeight = FontWeight.Bold
         )
 
+        Text(
+            modifier = Modifier.fillMaxWidth(0.85f),
+            text = "Name",
+            fontFamily = poppinsFam,
+            fontSize = 18.sp
+        )
         Card(
             modifier = Modifier.fillMaxWidth(0.88f),
             border = BorderStroke(1.dp, Color.Black),
@@ -120,22 +126,48 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.weight(1F))
 
-        currentUser?.username?.let {username->
-            Text(
-                text = username,
-                fontFamily = poppinsFam,
-                fontSize = 18.sp
-            )
+        Text(
+            modifier = Modifier.fillMaxWidth(0.85f),
+            text = "Username",
+            fontFamily = poppinsFam,
+            fontSize = 18.sp
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(0.88f),
+            border = BorderStroke(1.dp, Color.Black),
+            elevation = CardDefaults.elevatedCardElevation(10.dp)
+        ) {
+            currentUser?.username?.let { username ->
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = username,
+                    fontFamily = poppinsFam,
+                    fontSize = 18.sp
+                )
+            }
         }
 
         Spacer(modifier = Modifier.weight(1F))
 
-        currentUser?.email?.let {email->
-            Text(
-                text = email,
-                fontFamily = poppinsFam,
-                fontSize = 18.sp
-            )
+        Text(
+            modifier = Modifier.fillMaxWidth(0.85f),
+            text = "Email",
+            fontFamily = poppinsFam,
+            fontSize = 18.sp
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(0.88f),
+            border = BorderStroke(1.dp, Color.Black),
+            elevation = CardDefaults.elevatedCardElevation(10.dp)
+        ) {
+            currentUser?.email?.let { email ->
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = email,
+                    fontFamily = poppinsFam,
+                    fontSize = 18.sp
+                )
+            }
         }
         Spacer(modifier = Modifier.weight(10f))
     }
