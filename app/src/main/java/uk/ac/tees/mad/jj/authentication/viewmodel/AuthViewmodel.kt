@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.auth.User
+import com.google.rpc.context.AttributeContext.Auth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -107,6 +108,7 @@ class AuthViewmodel @Inject constructor(
         val currUser = auth.currentUser
         _authState.value = AuthState.Loading
         if (currUser!=null){
+            Log.i("The current User name: ", currUser.displayName.toString())
             val userId = currUser.uid
 
             firestore.collection("users")
@@ -135,4 +137,32 @@ class AuthViewmodel @Inject constructor(
         }
     }
 
+    fun updateNameAndUsername(name: String, username: String){
+        _authState.value = AuthState.Loading
+        val currUser = auth.currentUser
+        if (currUser != null){
+            _authState.value = AuthState.Loading
+            val userId = currUser.uid
+
+            val updatedUser = hashMapOf(
+                "name" to name,
+                "username" to username
+            )
+
+            firestore.collection("users")
+                .document(userId)
+                .update(updatedUser as Map<String, Any>)
+                .addOnSuccessListener {
+                    fetchCurrentUser()
+                    Log.i("User Update:", "The user is updated successfully")
+                    _authState.value = AuthState.Success
+                }
+                .addOnFailureListener {
+                    Log.i("User Update:", "The user is updated successfully")
+                    _authState.value = AuthState.Failure(it.message.toString())
+                }
+        }
+    }
+
 }
+
