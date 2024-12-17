@@ -1,6 +1,14 @@
 package uk.ac.tees.mad.jj.ui.homescreen
 
+import android.Manifest
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -32,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,11 +52,14 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import uk.ac.tees.mad.jj.R
-import uk.ac.tees.mad.jj.authentication.response.AuthState
 import uk.ac.tees.mad.jj.authentication.viewmodel.AuthViewmodel
 import uk.ac.tees.mad.jj.ui.theme.poppinsFam
+import java.io.File
+import java.io.FileOutputStream
+import java.util.UUID
 
 
+@RequiresApi(Build.VERSION_CODES.R)
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun EditProfileScreen(
@@ -54,9 +67,77 @@ fun EditProfileScreen(
     navController: NavHostController
 ){
 
+    val context = LocalContext.current
+
     val currentUser by authViewmodel.currentUser.collectAsState()
     var updatedName by remember { mutableStateOf(currentUser?.name ?: "") }
     var updatedUsername by remember { mutableStateOf(currentUser?.username ?: "") }
+    var showDialog by remember { mutableStateOf(false) }
+    val cameraPermission = remember { mutableStateOf(false)}
+
+    //Launching Gallery to select the picture
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) {uri: Uri? ->
+        uri?.let {
+            authViewmodel.updateProfileImage(uri)
+        }
+    }
+
+    // Launcher for taking a picture with the camera
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap: Bitmap? ->
+        bitmap?.let {
+            authViewmodel.updateProfileImage(bitmapToUri(context, bitmap))
+        }
+    }
+
+    //Launcher for asking permission to access the camera.
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {isGranted->
+            if (isGranted){
+                cameraLauncher.launch(null)
+            }else{
+                Toast.makeText(context, "Camera Permission Denied", Toast.LENGTH_LONG).show()
+            }
+        }
+    )
+
+    //Launcher for asking permission to access the gallery.
+    val galleryPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {isGranted->
+            if (isGranted){
+                galleryLauncher.launch("images/*")
+            }else{
+                Toast.makeText(context, "Gallery Permission Denied", Toast.LENGTH_LONG).show()
+            }
+        }
+    )
+
+
+
+    if (showDialog){
+        ImageSelectionSource(
+            onDismiss = { showDialog = false },
+            onCameraClick = {
+                cameraPermissionLauncher.launch(
+                    Manifest.permission.CAMERA
+                )
+            },
+            onGalleryClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    galleryPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    galleryLauncher.launch("image/*")
+                } else {
+                    galleryPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -90,7 +171,7 @@ fun EditProfileScreen(
             ),
             border = BorderStroke(1.dp, Color.Black),
             onClick = {
-
+                showDialog = true
             }
         ) {
             Text(
@@ -187,3 +268,64 @@ fun EditProfileScreen(
 
     }
 }
+
+@Composable
+fun ImageSelectionSource(
+    onDismiss: ()->Unit,
+    onCameraClick: ()->Unit,
+    onGalleryClick: ()->Unit
+){
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "Choose Image Source")
+        },
+        text = {
+            Column {
+                Button(
+                    onClick = {
+                        onCameraClick()
+                        onDismiss()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Take a Photo",
+                        fontSize = 13.sp,
+                        fontFamily = poppinsFam
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        onGalleryClick()
+                        onDismiss()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Choose from Gallery",
+                        fontFamily = poppinsFam,
+                        fontSize = 13.sp
+                    )
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {}
+    )
+}
+
+
+
+fun bitmapToUri(context: Context, bt: Bitmap): Uri{
+    val image = File(context.cacheDir, "${UUID.randomUUID()}.jpg")
+    val outStream = FileOutputStream(image)
+    bt.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
+    outStream.flush()
+    outStream.close()
+    return Uri.fromFile(image)
+}
+

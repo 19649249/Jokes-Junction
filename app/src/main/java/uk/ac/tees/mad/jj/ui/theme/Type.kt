@@ -40,6 +40,13 @@ val heading = FontFamily(
     Font(googleFont = appHead, fontProvider = provider)
 )
 
+
+val inter = GoogleFont("Inter")
+
+val interFam = FontFamily(
+    Font(googleFont = inter, fontProvider = provider)
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(

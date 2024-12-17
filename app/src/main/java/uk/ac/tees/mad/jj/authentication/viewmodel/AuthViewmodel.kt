@@ -1,11 +1,13 @@
 package uk.ac.tees.mad.jj.authentication.viewmodel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.auth.User
+import com.google.firebase.storage.FirebaseStorage
 import com.google.rpc.context.AttributeContext.Auth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +22,8 @@ import kotlin.math.log
 @HiltViewModel
 class AuthViewmodel @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage
 ):ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
@@ -161,6 +164,35 @@ class AuthViewmodel @Inject constructor(
                     Log.i("User Update:", "The user is updated successfully")
                     _authState.value = AuthState.Failure(it.message.toString())
                 }
+        }
+    }
+
+    fun updateProfileImage(uri: Uri){
+        val currentUser = auth.currentUser
+        if (currentUser!=null){
+            val userId = currentUser.uid
+            val imageRef = storage.reference.child("users/${userId}/profile.jpg")
+
+            imageRef.putFile(uri)
+                .addOnSuccessListener {
+                    imageRef.downloadUrl.addOnSuccessListener {
+                        val imageLink = it.toString()
+
+                        val userData = hashMapOf(
+                            "profilePicture" to imageLink)
+                        firestore.collection("users")
+                            .document(userId)
+                            .update(userData as Map<String, Any>)
+                            .addOnSuccessListener {
+                                fetchCurrentUser()
+                            }
+                    }
+                }
+                .addOnFailureListener{
+                    Log.i("Error Encountered: ", "Unable to update the profile picture.")
+                }
+        }else{
+            Log.i("Error update:", "Current User is null")
         }
     }
 

@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import uk.ac.tees.mad.jj.authentication.viewmodel.AuthViewmodel
+import uk.ac.tees.mad.jj.jokes.viemodel.JokesViewModel
 import uk.ac.tees.mad.jj.navigation.CentralNavigation
 import uk.ac.tees.mad.jj.ui.theme.JokeJunctionTheme
 
@@ -22,6 +23,7 @@ import uk.ac.tees.mad.jj.ui.theme.JokeJunctionTheme
 class MainActivity : ComponentActivity() {
 
     private val authViewmodel by viewModels<AuthViewmodel>()
+    private val jokeViewmodel by viewModels<JokesViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +33,11 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             JokeJunctionTheme {
-                CentralNavigation(authViewmodel, navController)
+                CentralNavigation(
+                    authViewmodel,
+                    navController,
+                    jokeViewmodel
+                    )
             }
         }
     }

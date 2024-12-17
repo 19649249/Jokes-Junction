@@ -1,11 +1,14 @@
 package uk.ac.tees.mad.jj.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import uk.ac.tees.mad.jj.authentication.viewmodel.AuthViewmodel
+import uk.ac.tees.mad.jj.jokes.viemodel.JokesViewModel
 import uk.ac.tees.mad.jj.ui.authentication.CustomSplash
 import uk.ac.tees.mad.jj.ui.authentication.LogInScreen
 import uk.ac.tees.mad.jj.ui.authentication.SignUpScreen
@@ -14,10 +17,12 @@ import uk.ac.tees.mad.jj.ui.homescreen.HomeScreen
 import uk.ac.tees.mad.jj.ui.homescreen.ProfileScreen
 
 
+@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun CentralNavigation(
     authViewmodel: AuthViewmodel,
-    navController: NavHostController
+    navController: NavHostController,
+    jokesViewModel: JokesViewModel
 ){
     NavHost(
         navController = navController,
@@ -50,7 +55,7 @@ fun CentralNavigation(
             route = "home_graph"
         ){
             composable("home_screen") {
-                HomeScreen(authViewmodel, navController)
+                HomeScreen(authViewmodel, navController,jokesViewModel)
             }
 
             composable("profile_screen"){
