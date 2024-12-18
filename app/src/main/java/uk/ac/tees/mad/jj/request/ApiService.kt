@@ -5,6 +5,6 @@ import uk.ac.tees.mad.jj.model.JokesInfoItem
 
 interface ApiService {
 
-    @GET("jokes/ten")
+    @GET("jokes/random/150")
     suspend fun getJokes(): List<JokesInfoItem>
 }
