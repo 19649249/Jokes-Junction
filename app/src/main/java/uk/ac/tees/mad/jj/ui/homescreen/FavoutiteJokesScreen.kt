@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -25,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,23 +36,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import uk.ac.tees.mad.jj.authentication.viewmodel.AuthViewmodel
+import uk.ac.tees.mad.jj.favourites.entity.FavouriteJokeInfo
 import uk.ac.tees.mad.jj.jokes.viemodel.JokesViewModel
-import uk.ac.tees.mad.jj.model.JokesInfoItem
 import uk.ac.tees.mad.jj.ui.theme.interFam
 import uk.ac.tees.mad.jj.ui.theme.poppinsFam
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
-    authViewmodel: AuthViewmodel,
+fun FavouriteJokesScreen(
     navController: NavHostController,
     jokesViewModel: JokesViewModel
 ){
+    val favouriteJokes by jokesViewModel.favJokeList.collectAsState()
 
-    val jokesList by jokesViewModel.jokesList.collectAsState()
-
+    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -64,19 +62,6 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold,
                         fontStyle = FontStyle.Normal
                     )
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            authViewmodel.fetchCurrentUser()
-                            navController.navigate("profile_screen")
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Profile"
-                        )
-                    }
                 }
             )
         }
@@ -86,32 +71,19 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerpadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ){
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF9EB1F4),
-                    contentColor = Color.DarkGray
-                ),
-                border = BorderStroke(1.dp, Color.Black),
-                onClick = {
-                    jokesViewModel.getAllFavourite()
-                    navController.navigate("favourite_screen")
-                }
-            ) {
-                Text(
-                    text = "See the Favourites!!",
-                    fontSize = 16.sp,
-                    fontFamily = poppinsFam,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+
+            Text(
+                text = "FAVOURITES!!",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = poppinsFam
+            )
             LazyColumn {
-                items(jokesList.size){index->
-                    JokesItemTile(jokesList[index], jokesViewModel)
-                    if (index >= jokesList.size-4){
+                items(favouriteJokes.size){index->
+                    FavouriteJokesTile(favouriteJokes[index], jokesViewModel)
+                    if (index >= favouriteJokes.size-4){
                         jokesViewModel.fetchJokesApi()
                     }
                 }
@@ -122,11 +94,10 @@ fun HomeScreen(
 
 
 @Composable
-fun JokesItemTile(
-    jokes: JokesInfoItem,
+fun FavouriteJokesTile(
+    favJokes: FavouriteJokeInfo,
     jokesViewModel: JokesViewModel
 ){
-
     val context = LocalContext.current
 
     Card(
@@ -150,7 +121,7 @@ fun JokesItemTile(
                 )
                 Spacer(modifier = Modifier.width(7.dp))
                 Text(
-                    text = jokes.setup,
+                    text = favJokes.setup,
                     fontSize = 18.sp,
                     fontFamily = poppinsFam,
                 )
@@ -165,7 +136,7 @@ fun JokesItemTile(
                 )
                 Spacer(modifier = Modifier.width(7.dp))
                 Text(
-                    text = jokes.punchline,
+                    text = favJokes.punchline,
                     fontSize = 18.sp,
                     fontFamily = poppinsFam,
                 )
@@ -180,7 +151,7 @@ fun JokesItemTile(
                 )
                 Spacer(modifier = Modifier.width(7.dp))
                 Text(
-                    text = jokes.type,
+                    text = favJokes.type,
                     fontSize = 15.sp,
                     fontFamily = poppinsFam
                 )
@@ -195,29 +166,12 @@ fun JokesItemTile(
                 ),
                 border = BorderStroke(1.dp, Color.Black),
                 onClick = {
-                    jokesViewModel.addFavourite(jokes)
-                    Toast.makeText(context, "The Joke is added to the Favourites!", Toast.LENGTH_LONG).show()
+                    jokesViewModel.deleteFavourite(favJokes)
+                    Toast.makeText(context, "The Joke is deleted from the Favourites!", Toast.LENGTH_LONG).show()
                 }
             ){
                 Text(
-                    text = "Add to favourite!",
-                    fontSize = 16.sp,
-                    fontFamily = poppinsFam
-                )
-            }
-
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF9EB1F4),
-                    contentColor = Color.DarkGray
-                ),
-                border = BorderStroke(1.dp, Color.Black),
-                onClick = {}
-            ){
-                Text(
-                    text = "Laugh with friends :)",
+                    text = "Delete from favourite!",
                     fontSize = 16.sp,
                     fontFamily = poppinsFam
                 )

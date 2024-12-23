@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.jj.favourites.FavouriteDatabase
+import uk.ac.tees.mad.jj.favourites.entity.FavouriteJokeInfo
 import uk.ac.tees.mad.jj.model.JokesInfoItem
 import uk.ac.tees.mad.jj.request.ApiService
 import javax.inject.Inject
@@ -32,6 +33,11 @@ class JokesViewModel @Inject constructor(
     private val _jokesList = MutableStateFlow<List<JokesInfoItem>>(emptyList())
     val jokesList = _jokesList.asStateFlow()
 
+    private val _favJokeList = MutableStateFlow<List<FavouriteJokeInfo>>(emptyList())
+    val favJokeList = _favJokeList.asStateFlow()
+
+
+
     init {
         fetchJokesApi()
     }
@@ -47,8 +53,29 @@ class JokesViewModel @Inject constructor(
         }
     }
 
-    fun addFavourite(){
-        
+    fun addFavourite(jokes: JokesInfoItem){
+        viewModelScope.launch {
+            val favJokes = FavouriteJokeInfo(
+                id = jokes.id,
+                setup = jokes.setup,
+                punchline = jokes.punchline,
+                type = jokes.type
+            )
+            favourite.addJoke(favJokes)
+        }
+    }
+
+    fun deleteFavourite(favJokes: FavouriteJokeInfo){
+        viewModelScope.launch {
+            favourite.deleteJoke(favJokes)
+            getAllFavourite()
+        }
+    }
+
+    fun getAllFavourite(){
+        viewModelScope.launch {
+            _favJokeList.value = favourite.allFavouriteJokes()
+        }
     }
 
 }
