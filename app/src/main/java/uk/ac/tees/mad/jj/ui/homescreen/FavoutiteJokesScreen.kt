@@ -50,7 +50,7 @@ fun FavouriteJokesScreen(
 ){
     val favouriteJokes by jokesViewModel.favJokeList.collectAsState()
 
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -167,11 +167,28 @@ fun FavouriteJokesTile(
                 border = BorderStroke(1.dp, Color.Black),
                 onClick = {
                     jokesViewModel.deleteFavourite(favJokes)
-                    Toast.makeText(context, "The Joke is deleted from the Favourites!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "The Joke is deleted from the Favourites!", Toast.LENGTH_SHORT).show()
                 }
             ){
                 Text(
                     text = "Delete from favourite!",
+                    fontSize = 16.sp,
+                    fontFamily = poppinsFam
+                )
+            }
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF9EB1F4),
+                    contentColor = Color.DarkGray
+                ),
+                border = BorderStroke(1.dp, Color.Black),
+                onClick = {}
+            ){
+                Text(
+                    text = "Laugh with friends :)",
                     fontSize = 16.sp,
                     fontFamily = poppinsFam
                 )

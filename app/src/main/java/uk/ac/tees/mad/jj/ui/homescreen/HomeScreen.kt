@@ -196,7 +196,7 @@ fun JokesItemTile(
                 border = BorderStroke(1.dp, Color.Black),
                 onClick = {
                     jokesViewModel.addFavourite(jokes)
-                    Toast.makeText(context, "The Joke is added to the Favourites!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "The Joke is added to the Favourites!", Toast.LENGTH_SHORT).show()
                 }
             ){
                 Text(

@@ -196,6 +196,27 @@ fun ProfileScreen(
             )
         }
 
+        Spacer(modifier = Modifier.weight(1F))
+
+        Button(
+            modifier = Modifier
+                .fillMaxWidth(0.8f),
+            elevation = ButtonDefaults.elevatedButtonElevation(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFC890E0),
+                contentColor = Color.DarkGray
+            ),
+            onClick = {
+                navController.navigate("favourite_screen")
+            }
+        ) {
+            Text(
+                text = "Go to Favourites!!",
+                fontSize = 16.sp,
+                fontFamily = poppinsFam
+            )
+        }
+
         Spacer(modifier = Modifier.weight(10f))
     }
 }
