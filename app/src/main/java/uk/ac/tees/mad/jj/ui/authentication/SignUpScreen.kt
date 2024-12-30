@@ -69,6 +69,7 @@ fun SignUpScreen(
                 popUpTo(navController.graph.startDestinationId){
                     inclusive=true
                 }
+                launchSingleTop=true
             }
         }
         is AuthState.Failure->{
@@ -289,11 +290,6 @@ fun SignUpScreen(
                         password.isNotEmpty()
                     ){
                         authViewmodel.RegisterUser(name, username, email, password)
-                        navController.navigate("home_graph"){
-                            popUpTo(navController.graph.startDestinationId){
-                                inclusive=true
-                            }
-                        }
 
                     }else{
                         Toast.makeText(context, "No field should be left empty", Toast.LENGTH_LONG).show()

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "343476088642",
-    "project_id": "joke-junction-1b22a",
+    "project_number": "331474772450",
+    "project_id": "jokejunction-439b9",
     "storage_bucket": "joke-junction-1b22a.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:343476088642:android:72d27e786efe1fd97b62db",
+        "mobilesdk_app_id": "1:331474772450:android:3adc91705c04727e3bd9bb",
         "android_client_info": {
           "package_name": "uk.ac.tees.mad.jj"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD0IZIOF-loN0Or_2Nd_ILvJcval9-9nYQ"
+          "current_key": "AIzaSyDYMk-p4Askr5eA22B7-QRcRBie_cVHU3k"
         }
       ],
       "services": {

@@ -2,6 +2,8 @@ package uk.ac.tees.mad.jj.ui.homescreen
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -147,6 +149,8 @@ fun JokesItemTile(
     jokesViewModel: JokesViewModel
 ){
 
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
+
     val context = LocalContext.current
 
     Card(
@@ -215,7 +219,7 @@ fun JokesItemTile(
             ){
                 AssistChip(onClick = {
                     jokesViewModel.addFavourite(jokes)
-                    Toast.makeText(context, "The Joke is deleted from the Favourites!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "The Joke is to the Favourites!", Toast.LENGTH_SHORT).show()
                 },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = Color.White,
@@ -229,17 +233,17 @@ fun JokesItemTile(
                         Text(
                             fontFamily = poppinsFam,
                             text = "Add to Favourite",
-                            fontSize = 13.sp,
+                            fontSize = 12.sp,
                             color = Color.DarkGray
                         )
                     }
                 )
 
                 AssistChip(
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_SEND)
+                    onClick = {val intent = Intent(Intent.ACTION_SEND)
                         intent.type = "type/text"
-                        
+                        intent.putExtra(Intent.EXTRA_TEXT, jokes.setup+"\n"+jokes.punchline)
+                        launcher.launch(Intent.createChooser(intent, "Share via"))
                     },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = Color.White,
@@ -253,7 +257,7 @@ fun JokesItemTile(
                         Text(
                             fontFamily = poppinsFam,
                             text = "Share With Friends",
-                            fontSize = 13.sp,
+                            fontSize = 12.sp,
                             color = Color.DarkGray
                         )
                     }

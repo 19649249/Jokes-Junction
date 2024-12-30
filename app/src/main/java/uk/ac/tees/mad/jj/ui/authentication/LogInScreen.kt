@@ -64,6 +64,7 @@ fun LogInScreen(
                 popUpTo(navController.graph.startDestinationId){
                     inclusive=true
                 }
+                launchSingleTop=true
             }
         }
         is AuthState.Failure->{

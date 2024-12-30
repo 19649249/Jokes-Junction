@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-    id("androidx.room")
     alias(libs.plugins.google.gms.google.services)
 }
 
@@ -22,10 +21,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-    }
-
-    room {
-        schemaDirectory("$projectDir/schemas")
     }
 
     buildTypes {
@@ -48,7 +43,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.7"
     }
     packaging {
         resources {
@@ -107,7 +102,6 @@ dependencies {
 
     //Room Implementation
     implementation("androidx.room:room-runtime:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.5.1")
 
     // To use Kotlin annotation processing tool (kapt)
